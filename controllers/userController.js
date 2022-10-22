@@ -22,10 +22,10 @@ module.exports.getAllFriends = async (req, res) => {
       { $project: { friends: 1, _id: 0 } },
     ]);
 
-    const Users2 = Users[0].friends.map(friend => {
-      const {avatarURL,username,phoneNumber,_id} = friend
-      return {avatarURL,username,phoneNumber,_id}
-    }) 
+    const Users2 = Users[0].friends.map((friend) => {
+      const { avatarURL, username, phoneNumber, _id } = friend;
+      return { avatarURL, username, phoneNumber, _id };
+    });
 
     return res.status(200).json(Users2);
   } catch (error) {
@@ -39,9 +39,31 @@ module.exports.getAllFriends = async (req, res) => {
 module.exports.getUserByPhonenumber = async (req, res) => {
   const { phoneNumber } = req.body;
   try {
-    const existingUser = await User.findOne({ $and:[{phoneNumber},{_id:{$ne:mongoose.Types.ObjectId(req.userId)}}] });
+    const existingUser = await User.findOne({
+      $and: [
+        { phoneNumber },
+        { _id: { $ne: mongoose.Types.ObjectId(req.userId) } },
+      ],
+    });
 
     return res.status(200).json(existingUser);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong!",
+    });
+  }
+};
+
+module.exports.requestAddFriend = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { friendsQueue: mongoose.Types.ObjectId(req.userId) } }
+    );
+
+    return res.status(200).json("requestAddFriend success");
   } catch (error) {
     console.log(error);
     return res.status(500).json({

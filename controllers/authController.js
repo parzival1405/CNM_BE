@@ -9,10 +9,15 @@ module.exports.signin = async (req, res) => {
   const { phoneNumber, password } = req.body;
 
   try {
-    const existingUser = await User.findOne({ phoneNumber });
+    const existingUser = await User.findOne({ phoneNumber }).populate(
+      "friends friendsQueue",
+      "username avatarURL phoneNumber"
+    );
 
     if (!existingUser) {
-      return res.status(404).json({ message: "Số điện thoại chưa được đăng ký" });
+      return res
+        .status(404)
+        .json({ message: "Số điện thoại chưa được đăng ký" });
     }
 
     const isCorrect = await bcrypt.compare(password, existingUser.password);
@@ -41,11 +46,15 @@ module.exports.signup = async (req, res) => {
     const existingUser = await User.findOne({ phoneNumber });
 
     if (existingUser) {
-      return res.status(400).json({ message: "Số điện thoại này đã được đăng ký" });
+      return res
+        .status(400)
+        .json({ message: "Số điện thoại này đã được đăng ký" });
     }
 
     if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Nhập lại mật khẩu không chính xác" });
+      return res
+        .status(400)
+        .json({ message: "Nhập lại mật khẩu không chính xác" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -57,9 +66,13 @@ module.exports.signup = async (req, res) => {
       avatarURL,
     });
 
-    const token = jwt.sign({ phoneNumber: user.phoneNumber, id: user._id }, "test", {
-      expiresIn: "5h",
-    });
+    const token = jwt.sign(
+      { phoneNumber: user.phoneNumber, id: user._id },
+      "test",
+      {
+        expiresIn: "5h",
+      }
+    );
 
     res.status(200).json({ user, token });
   } catch (error) {
@@ -74,7 +87,9 @@ module.exports.verifyOTP = async (req, res) => {
     const existingUser = await User.findOne({ phoneNumber });
 
     if (!existingUser) {
-      return res.status(404).json({ message: "Số điện thoại chưa được đăng ký" });
+      return res
+        .status(404)
+        .json({ message: "Số điện thoại chưa được đăng ký" });
     }
 
     const isCorrect = await bcrypt.compare(password, existingUser.password);

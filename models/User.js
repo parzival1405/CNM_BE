@@ -6,8 +6,9 @@ const UserSchema = mongoose.Schema({
     password: {type: String, required: true},
     phoneNumber:{type:Number,require:true},
     avatarURL:{type: String, required: true},
-    friends: {type: [],require:false},
-    nicknamez:{type: String, required: false},
+    friends: {type: [],require:false,ref: "User"},
+    nickname:{type: String, required: false},
+    friendsQueue: {type: [],require:false,ref: "User"},
 })
 
 module.exports = mongoose.model('User',UserSchema);
