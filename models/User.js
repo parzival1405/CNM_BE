@@ -8,6 +8,7 @@ const UserSchema = mongoose.Schema({
     avatarURL:{type: String, required: true},
     friends: {type: [],require:false,ref: "User"},
     nickname:{type: String, required: false},
+    gender:{type:Boolean,require:true,default:true},
     friendsQueue: {type: [],require:false,ref: "User"},
 })
 

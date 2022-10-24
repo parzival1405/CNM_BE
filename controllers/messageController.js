@@ -3,11 +3,12 @@ require("dotenv").config();
 
 module.exports.addMessage = async (req, res, next) => {
   try {
-    const { sender, conversation, text } = req.body;
+    const { sender, conversation, text,type } = req.body;
     const data = await Messages.create({
       conversation: conversation._id,
       sender: sender,
       text: text,
+      type:type
     }).then((data) => data.populate("sender", "_id avatarURL"));
     if (data) {
       return res.json({

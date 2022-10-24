@@ -1,32 +1,51 @@
 let users = [];
 let rooms = [];
 
-const SocketServer = (socket) => {
+const SocketServer = (socket,query) => {
   console.log("new connection");
+  // console.log("here" + query._id)
 
-  socket.on("disconnect", () => {
-    const data = users.find((user) => user.socketId === socket.id);
-  });
-
-  socket.on("add-user", (user) => {
-    const HasUser = users.find((user1) => user1.id === user._id);
+  const HasUser = users.find((user1) => user1.id === query._id);
     if (HasUser) {
       users.map((user1) => {
-        if (user1.id === user._id) {
+        if (user1.id === query._id) {
           user1.socketId = socket.id;
         }
       });
     } else {
       users.push({
-        id: user._id,
+        id:query._id,
         socketId: socket.id,
-        friends: user.friends,
-        username: user.username,
-        avatarURL: user.avatarURL,
+        friends:  query.friends,
+        username: query.username,
+        avatarURL: query.avatarURL,
       });
     }
     console.log(users);
+
+  socket.on("disconnect", () => {
+    const data = users.find((user) => user.socketId === socket.id);
   });
+
+  // socket.on("add-user", (user) => {
+  //   const HasUser = users.find((user1) => user1.id === user._id);
+  //   if (HasUser) {
+  //     users.map((user1) => {
+  //       if (user1.id === user._id) {
+  //         user1.socketId = socket.id;
+  //       }
+  //     });
+  //   } else {
+  //     users.push({
+  //       id: user._id,
+  //       socketId: socket.id,
+  //       friends: user.friends,
+  //       username: user.username,
+  //       avatarURL: user.avatarURL,
+  //     });
+  //   }
+  //   console.log(users);
+  // });
 
   socket.on("send-msg", async (data) => {
     const UserRemain = data.conversation.member.find(
