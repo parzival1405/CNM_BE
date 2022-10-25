@@ -29,11 +29,11 @@ const generateUploadURL = async () => {
 
   try{
     const uploadURL = await s3.getSignedUrlPromise("putObject", params);
-
+    return uploadURL;
   }catch(err){
     console.log(err)
     return;
   }
-  return uploadURL;
+  // return uploadURL;
 };
 module.exports = { generateUploadURL };

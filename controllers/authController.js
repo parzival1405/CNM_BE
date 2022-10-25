@@ -17,13 +17,13 @@ module.exports.signin = async (req, res) => {
     if (!existingUser) {
       return res
         .status(404)
-        .json({ message: "Số điện thoại chưa được đăng ký" });
+        .json({ message: "Số điện thoại chưa được đăng ký",errorCode:1 });
     }
 
     const isCorrect = await bcrypt.compare(password, existingUser.password);
 
     if (!isCorrect) {
-      return res.status(400).json({ message: "Sai mật khẩu" });
+      return res.status(400).json({ message: "Sai mật khẩu",errorCode:2 });
     }
 
     const token = jwt.sign(
@@ -39,7 +39,7 @@ module.exports.signin = async (req, res) => {
 };
 
 module.exports.signup = async (req, res) => {
-  const { password, username, confirmPassword, phoneNumber } = req.body;
+  const { password, username, phoneNumber } = req.body;
   const avatarURL =
     "https://scontent.fsgn5-11.fna.fbcdn.net/v/t39.30808-6/310229638_1559528767795246_3641942269697383784_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=-mx7WAVAeZAAX-zKKDr&_nc_ht=scontent.fsgn5-11.fna&oh=00_AT_heJ226LJuPdGEWqeU_ihlEIrZCFEgC3CT8KmA_cZVcg&oe=634FF9AE";
   try {
@@ -50,13 +50,6 @@ module.exports.signup = async (req, res) => {
         .status(400)
         .json({ message: "Số điện thoại này đã được đăng ký" });
     }
-
-    if (password !== confirmPassword) {
-      return res
-        .status(400)
-        .json({ message: "Nhập lại mật khẩu không chính xác" });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await User.create({

@@ -1,14 +1,36 @@
 const Messages = require("../models/message");
 require("dotenv").config();
-
+const s3 = require("../utils/s3");
 module.exports.addMessage = async (req, res, next) => {
   try {
-    const { sender, conversation, text,type } = req.body;
+    // let mediaArray = [];
+    const { sender, conversation, text, type, media } = req.body;
+    // if (media.length > 0) {
+    //   media.map(async (item) => {
+    //     urlGeneration = await s3.generateUploadURL();
+    //     console.log(urlGeneration);
+    //     const imageUrl = urlGeneration.split("?")[0];
+    //     await fetch(urlGeneration, {
+    //       method: "PUT",
+    //       headers: {
+    //         "Content-Type": item.type,
+    //       },
+    //       body: item,
+    //     });
+
+    //     mediaArray.push({
+    //       imageUrl,
+    //       type: item.type,
+    //     });
+    //   });
+    // }
+
     const data = await Messages.create({
       conversation: conversation._id,
       sender: sender,
       text: text,
-      type:type
+      type: type,
+      media: media,
     }).then((data) => data.populate("sender", "_id avatarURL"));
     if (data) {
       return res.json({

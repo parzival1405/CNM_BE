@@ -15,7 +15,7 @@ require("dotenv").config();
 
 db.connect();
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: true, credentials: true,preflightContinue: false }));
 
 app.use(express.json());
 
