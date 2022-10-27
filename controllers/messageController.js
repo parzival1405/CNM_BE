@@ -1,30 +1,11 @@
 const Messages = require("../models/message");
 require("dotenv").config();
 const s3 = require("../utils/s3");
+const crypto = require("crypto");
+const { promisify } = require("util");
 module.exports.addMessage = async (req, res, next) => {
   try {
-    // let mediaArray = [];
     const { sender, conversation, text, type, media } = req.body;
-    // if (media.length > 0) {
-    //   media.map(async (item) => {
-    //     urlGeneration = await s3.generateUploadURL();
-    //     console.log(urlGeneration);
-    //     const imageUrl = urlGeneration.split("?")[0];
-    //     await fetch(urlGeneration, {
-    //       method: "PUT",
-    //       headers: {
-    //         "Content-Type": item.type,
-    //       },
-    //       body: item,
-    //     });
-
-    //     mediaArray.push({
-    //       imageUrl,
-    //       type: item.type,
-    //     });
-    //   });
-    // }
-
     const data = await Messages.create({
       conversation: conversation._id,
       sender: sender,
@@ -37,7 +18,7 @@ module.exports.addMessage = async (req, res, next) => {
         data: data,
       });
     }
-    return res.json({ msg: "failed to add message " });
+    return res.status(200).json({ msg: "failed to add message " });
   } catch (error) {
     next(error);
   }
@@ -59,49 +40,17 @@ module.exports.getAllMessage = async (req, res, next) => {
   }
 };
 
-//demo
-
-module.exports.addMessageDemo = async (data, next) => {
+module.exports.uploadFile = async (req, res, next) => {
   try {
-    const { from, conversation, message } = data;
-    const dataResult = await Messages.create({
-      conversation: conversation,
-      sender: from,
-      text: message,
-    }).then((data) => data.populate("sender", "_id avatarURL"));
-    if (dataResult) {
-      return {
-        _id: dataResult._id,
-        fromSelf: dataResult.sender._id.toString() === from,
-        info: dataResult.sender,
-        message: dataResult.text,
-        msg: "message added",
-      };
-    }
-    return res.json({ msg: "failed to add message " });
-  } catch (error) {}
-};
-
-module.exports.getUnseenMessage = async (req, res, next) => {
-  try {
-    const id = req.userId;
-
-    const unseenMessages = await Messages.aggregate([
-      {
-        $match: {
-          $and: [{ users: { $all: [id] } }, { watched: { $ne: id } }],
-        },
-      },
-      { $group: { _id: "$sender", count: { $count: {} } } },
-    ]);
-
-    const projectMessage = unseenMessages.map((msg) => {
-      return {
-        friend: msg._id,
-        totalUnseenMessages: msg.count,
-      };
+    const randomBytes = promisify(crypto.randomBytes);
+    const rawBytes = await randomBytes(16);
+    const imageName = rawBytes.toString("hex");
+    const file = req.file
+    const code = await s3.generateUploadURL(file, imageName);
+    return res.json({
+      data: "https://cmn-savefiletest2.s3.ap-northeast-1.amazonaws.com/" + code,
     });
-
-    return res.json({ data: projectMessage });
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };

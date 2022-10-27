@@ -17,23 +17,28 @@ const s3 = new aws.S3({
   signatureVersion: "v4",
 });
 
-const generateUploadURL = async () => {
-  const rawBytes = await randomBytes(16);
-  const imageName = rawBytes.toString("hex");
-
+const generateUploadURL = async (item,imageName) => {
   const params = {
     Bucket: bucketName,
     Key: imageName,
     Expires: 60,
+    Body: item.buffer,
   };
 
   try{
-    const uploadURL = await s3.getSignedUrlPromise("putObject", params);
-    return uploadURL;
-  }catch(err){
+    const code = await s3.upload(params).promise();
+    return code.Key;
+  } catch(err){
     console.log(err)
-    return;
   }
+
+  // try{
+  //   const uploadURL = await s3.getSignedUrlPromise("putObject", params);
+  //   return uploadURL;
+  // }catch(err){
+  //   console.log(err)
+  //   return;
+  // }
   // return uploadURL;
 };
 module.exports = { generateUploadURL };

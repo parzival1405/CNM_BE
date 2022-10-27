@@ -16,7 +16,7 @@ module.exports.signin = async (req, res) => {
 
     if (!existingUser) {
       return res
-        .status(404)
+        .status(400)
         .json({ message: "Số điện thoại chưa được đăng ký",errorCode:1 });
     }
 
@@ -81,7 +81,7 @@ module.exports.verifyOTP = async (req, res) => {
 
     if (!existingUser) {
       return res
-        .status(404)
+        .status(400)
         .json({ message: "Số điện thoại chưa được đăng ký" });
     }
 
