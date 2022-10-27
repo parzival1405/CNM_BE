@@ -48,11 +48,14 @@ const SocketServer = (socket,query) => {
   // });
 
   socket.on("send-msg", async (data) => {
-    const UserRemain = data.conversation.member.find(
-      (user) => user._id !== data.sender._id
+    console.log(data)
+    const data2 = JSON.parse(data);
+    console.log(data2)
+    const UserRemain = data2.conversation.member.find(
+      (user) => user._id !== data2.sender._id
     );
     const user = users.find((user1) => user1.id === UserRemain._id);
-    user && socket.to(user.socketId).emit("msg-receive", data);
+    user && socket.to(user.socketId).emit("msg-receive", data2);
   });
 
   //   room
