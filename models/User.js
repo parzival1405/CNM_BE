@@ -11,7 +11,6 @@ const UserSchema = mongoose.Schema({
     gender:{type:Boolean,require:true,default:true},
     friendsQueue: {type: [],require:false,ref: "User"},
     dob:{type: String, required: false},
-
 })
 
 module.exports = mongoose.model('User',UserSchema);

@@ -49,60 +49,64 @@ const SocketServer = (socket,query) => {
 
   socket.on("send-msg", async (data) => {
     const data2 = JSON.parse(data);
-    const UserRemain = data2.conversation.member.find(
+    const UserRemain = data2.conversation.member.filter(
       (user) => user._id !== data2.sender._id
     );
-    const user = users.find((user1) => user1.id === UserRemain._id);
-    user && socket.to(user.socketId).emit("msg-receive", data2);
+    UserRemain.forEach((element, index) => {
+      const user = users.find((user1) => user1.id === element._id);
+      user && socket.to(user.socketId).emit("msg-receive", data2);
+    });
   });
 
   //   room
 
-  socket.on("joinRoom", (RoomId) => {
-    socket.join(RoomId);
-    console.log(socket.id,"join")
-    const hadRoom = rooms.find((room) => room.id === RoomId);
-    if (!hadRoom) {
-      rooms.push({
-        id: RoomId,
-        socketId: RoomId,
-      });
-    }
-  });
+  // socket.on("joinRoom", (RoomId) => {
+  //   socket.join(RoomId);
+  //   console.log(socket.id,"join")
+  //   const hadRoom = rooms.find((room) => room.id === RoomId);
+  //   if (!hadRoom) {
+  //     rooms.push({
+  //       id: RoomId,
+  //       socketId: RoomId,
+  //     });
+  //   }
+  // });
 
-  socket.on("leaveRoom", (RoomId) => {
-    socket.leave(RoomId);
-    console.log(socket.id,"leave")
-  });
+  // socket.on("leaveRoom", (RoomId) => {
+  //   socket.leave(RoomId);
+  //   console.log(socket.id,"leave")
+  // });
 
-  socket.on("sendGroupMessage", async (data) => {
-    const data2 = JSON.parse(data);
-    const room = rooms.find((room) => room.id === data2.conversation._id)
-    room &&
-      socket.broadcast
-        .to(room.socketId)
-        .emit("groupMessage-receive", data2);
-  });
+  // socket.on("sendGroupMessage", async (data) => {
+  //   const data2 = JSON.parse(data);
+  //   const room = rooms.find((room) => room.id === data2.conversation._id)
+  //   room &&
+  //     socket.broadcast
+  //       .to(room.socketId)
+  //       .emit("groupMessage-receive", data2);
+  // });
 
   // delete
 
   socket.on("delete-msg", async (data) => {
     const data2 = JSON.parse(data);
-    const UserRemain = data2.conversation.member.find(
+    const UserRemain = data2.conversation.member.filter(
       (user) => user._id !== data2.sender._id
     );
-    const user = users.find((user1) => user1.id === UserRemain._id);
-    user && socket.to(user.socketId).emit("delete-receive", data2);
+    UserRemain.forEach((element, index) => {
+      const user = users.find((user1) => user1.id === element._id);
+      user && socket.to(user.socketId).emit("delete-receive", data2);
+    });
   });
 
-  socket.on("deleteGroupMessage", async (data) => {
-    const data2 = JSON.parse(data);
-    const room = rooms.find((room) => room.id === data2.conversation._id)
-    room &&
-      socket.broadcast
-        .to(room.socketId)
-        .emit("delete-groupMessage-receive", data2);
-  });
+  // socket.on("deleteGroupMessage", async (data) => {
+  //   const data2 = JSON.parse(data);
+  //   const room = rooms.find((room) => room.id === data2.conversation._id)
+  //   room &&
+  //     socket.broadcast
+  //       .to(room.socketId)
+  //       .emit("delete-groupMessage-receive", data2);
+  // });
 };
 
 module.exports = SocketServer;
