@@ -3,6 +3,7 @@ require("dotenv").config();
 const s3 = require("../utils/s3");
 const crypto = require("crypto");
 const { promisify } = require("util");
+var mongoose = require("mongoose");
 module.exports.addMessage = async (req, res, next) => {
   try {
     const { sender, conversation, text, type, media } = req.body;
@@ -50,6 +51,23 @@ module.exports.uploadFile = async (req, res, next) => {
     return res.json({
       data: "https://cmn-savefiletest2.s3.ap-northeast-1.amazonaws.com/" + code,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+module.exports.deleteMessage = async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    const data = await Messages.findByIdAndUpdate({
+      _id: mongoose.Types.ObjectId(id)
+    },{isDelete:true}).then((data) => data.populate("sender", "_id avatarURL"));
+    if (data) {
+      return res.json({
+        data: data});
+    }
+    return res.status(200).json({ msg: "failed to update message " });
   } catch (error) {
     next(error);
   }

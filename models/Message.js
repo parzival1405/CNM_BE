@@ -6,7 +6,8 @@ const MessageSchema = mongoose.Schema(
     sender: { type: mongoose.Types.ObjectId, ref: "User" },
     text: String,
     media:{ type: Array, require:false},
-    type:{type:String,require:true}
+    type:{type:String,require:true},
+    isDelete:{type:Boolean,require:true,default:false}
   },
   {
     timestamps: true,

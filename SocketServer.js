@@ -48,9 +48,7 @@ const SocketServer = (socket,query) => {
   // });
 
   socket.on("send-msg", async (data) => {
-    console.log(data)
     const data2 = JSON.parse(data);
-    console.log(data2)
     const UserRemain = data2.conversation.member.find(
       (user) => user._id !== data2.sender._id
     );
@@ -78,11 +76,32 @@ const SocketServer = (socket,query) => {
   });
 
   socket.on("sendGroupMessage", async (data) => {
-    const room = rooms.find((room) => room.id === data.conversation._id)
+    const data2 = JSON.parse(data);
+    const room = rooms.find((room) => room.id === data2.conversation._id)
     room &&
       socket.broadcast
         .to(room.socketId)
-        .emit("groupMessage-receive", data);
+        .emit("groupMessage-receive", data2);
+  });
+
+  // delete
+
+  socket.on("delete-msg", async (data) => {
+    const data2 = JSON.parse(data);
+    const UserRemain = data2.conversation.member.find(
+      (user) => user._id !== data2.sender._id
+    );
+    const user = users.find((user1) => user1.id === UserRemain._id);
+    user && socket.to(user.socketId).emit("delete-receive", data2);
+  });
+
+  socket.on("deleteGroupMessage", async (data) => {
+    const data2 = JSON.parse(data);
+    const room = rooms.find((room) => room.id === data2.conversation._id)
+    room &&
+      socket.broadcast
+        .to(room.socketId)
+        .emit("delete-groupMessage-receive", data2);
   });
 };
 
