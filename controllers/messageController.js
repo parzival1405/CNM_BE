@@ -4,6 +4,7 @@ const s3 = require("../utils/s3");
 const crypto = require("crypto");
 const { promisify } = require("util");
 var mongoose = require("mongoose");
+const Conversation = require("../models/Conversation");
 module.exports.addMessage = async (req, res, next) => {
   try {
     const { sender, conversation, text, type, media } = req.body;
@@ -13,7 +14,11 @@ module.exports.addMessage = async (req, res, next) => {
       text: text,
       type: type,
       media: media,
-    }).then((data) => data.populate("sender", "_id avatarURL"));
+    }).then((data) => data.populate("sender", "_id avatarURL username"));
+    await Conversation.findOneAndUpdate(
+      { _id: mongoose.Types.ObjectId(conversation._id)},
+      { lastMessage: data._id }
+    )
     if (data) {
       return res.json({
         data: data,
@@ -24,6 +29,22 @@ module.exports.addMessage = async (req, res, next) => {
     next(error);
   }
 };
+
+// module.exports.updateLastMessage = async (req, res) => {
+//   const {messId,conversationId} = req.body;
+//   try {
+//     const conversation = await Conversation.findOneAndUpdate(
+//       { _id: mongoose.Types.ObjectId(conversationId)},
+//       { lastMessage: messId }
+//     )
+//       .select("-updatedAt")
+//       .populate("member", "profilePicture username phoneNumber");
+//     res.status(200).json(conversation);
+//   } catch (error) {
+//     res.status(500).json({ msg: error });
+//   }
+// };
+
 
 module.exports.getAllMessage = async (req, res, next) => {
   try {
@@ -49,7 +70,7 @@ module.exports.uploadFile = async (req, res, next) => {
     const file = req.file
     const code = await s3.generateUploadURL(file, imageName);
     return res.json({
-      data: "https://cmn-savefiletest2.s3.ap-northeast-1.amazonaws.com/" + code,
+      data: "https://cmn-savefile.s3.ap-northeast-1.amazonaws.com/" + code,
     });
   } catch (error) {
     next(error);
@@ -64,10 +85,10 @@ module.exports.deleteMessage = async (req, res, next) => {
       _id: mongoose.Types.ObjectId(id)
     },{isDelete:true}).then((data) => data.populate("sender", "_id avatarURL"));
     if (data) {
-      return res.json({
+      return res.status(200).json({
         data: data});
     }
-    return res.status(200).json({ msg: "failed to update message " });
+    return res.status(500).json({ msg: "failed to update message " });
   } catch (error) {
     next(error);
   }

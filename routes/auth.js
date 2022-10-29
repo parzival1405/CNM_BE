@@ -1,10 +1,10 @@
 
-const { signin,signup,verifyOTP } = require('../controllers/authController.js');
+const { signin,signup,checkOTP } = require('../controllers/authController.js');
 
 const router = require("express").Router();
 
 router.post('/signin', signin);
 router.post('/signup', signup);
-router.post("/verify", verifyOTP);
+router.post("/checkOTP", checkOTP);
 
 module.exports = router;  

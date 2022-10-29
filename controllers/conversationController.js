@@ -7,7 +7,14 @@ module.exports.getAllConversation  = async (req, res) => {
     const conversation = await Conversation.find({member: { $in: [req.userId] }})
     .select("-updatedAt")
     .populate("member", "avatarURL username phoneNumber")
-    .populate("lastMessage", "text updatedAt")
+    .populate({ 
+      path: 'lastMessage',
+      populate: {
+        path: 'sender',
+        model: 'User',
+        select: 'username _id'
+      } 
+   })
     .populate("createdBy", " _id username");
     res.status(200).json(conversation);
   } catch (error) {
@@ -38,4 +45,5 @@ module.exports.createConversation = async (req,res) => {
     console.log(error)
     res.status(500).json({ message: "Something went wrong!"});
   }
-}
+};
+

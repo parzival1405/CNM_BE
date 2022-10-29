@@ -6,7 +6,7 @@ const ConversationSchema = new mongoose.Schema(
     label: {
       type: String,
     },
-    lastMessage: { type: mongoose.Types.ObjectId, ref: "Message" },
+    lastMessage: { type: mongoose.Types.ObjectId, ref: "Messages" },
     createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }

@@ -73,32 +73,27 @@ module.exports.signup = async (req, res) => {
   }
 };
 
-module.exports.verifyOTP = async (req, res) => {
+module.exports.checkOTP = async (req, res) => {
   const { phoneNumber, password } = req.body;
 
   try {
-    const existingUser = await User.findOne({ phoneNumber });
+    const existingUser = await User.findOne({ phoneNumber })
 
     if (!existingUser) {
       return res
         .status(400)
-        .json({ message: "Số điện thoại chưa được đăng ký" });
+        .json({ message: "Số điện thoại chưa được đăng ký",errorCode:1 });
     }
 
     const isCorrect = await bcrypt.compare(password, existingUser.password);
 
     if (!isCorrect) {
-      return res.status(400).json({ message: "Sai mật khẩu" });
+      return res.status(400).json({ message: "Sai mật khẩu",errorCode:2 });
     }
 
-    const token = jwt.sign(
-      { phoneNumber: existingUser.phoneNumber, id: existingUser._id },
-      "test",
-      { expiresIn: "5h" }
-    );
-
-    res.status(200).json({ user: existingUser, token });
+    res.status(200).json({ user: {phoneNumber,password,isVerifyOtp:existingUser.isVerifyOtp} });
   } catch (err) {
     res.status(500).json({ message: "Something went wrong!" });
   }
 };
+
