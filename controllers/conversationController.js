@@ -7,7 +7,7 @@ module.exports.getAllConversation = async (req, res) => {
     const conversation = await Conversation.find({
       member: { $in: [req.userId] },
     })
-      .select("-updatedAt")
+      .sort("updatedAt")
       .populate("member", "avatarURL username phoneNumber")
       .populate({
         path: "lastMessage",
@@ -73,7 +73,7 @@ module.exports.changeLabel = async (req, res) => {
 
 module.exports.addMemberGroup= async (req, res) => {
   const { conversationId ,newMember} = req.body;
-  console.log(conversationId,newMember)
+
   try {
     const conversation = await Conversation.findOneAndUpdate(
       { _id: conversationId },

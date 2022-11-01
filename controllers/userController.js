@@ -71,3 +71,21 @@ module.exports.requestAddFriend = async (req, res) => {
     });
   }
 };
+
+module.exports.updateProfile = async (req, res) => {
+  const userId = req.userId;
+  const { username,avatarURL,gender,dob } = req.body;
+  try {
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {username,avatarURL,gender,dob}
+    );
+
+    return res.status(200).json("update success");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong!",
+    });
+  }
+};
