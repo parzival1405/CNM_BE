@@ -38,7 +38,7 @@ module.exports.getAllMessage = async (req, res, next) => {
     })
       .select("-updatedAt")
       .sort({ createAt: 1 })
-      .populate("sender", "_id avatarURL");
+      .populate("sender", "_id username avatarURL");
 
     return res.json({ data: messages });
   } catch (error) {
