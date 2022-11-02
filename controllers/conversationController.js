@@ -7,7 +7,7 @@ module.exports.getAllConversation = async (req, res) => {
     const conversation = await Conversation.find({
       member: { $in: [req.userId] },
     })
-      .sort("updatedAt")
+      .sort({ updatedAt: -1 })
       .populate("member", "avatarURL username phoneNumber")
       .populate({
         path: "lastMessage",
@@ -50,74 +50,91 @@ module.exports.createConversation = async (req, res) => {
 };
 
 module.exports.changeLabel = async (req, res) => {
-  const {newLabel,conversationId} = req.body
+  const { newLabel, conversationId } = req.body;
 
   try {
-    const conversation = await Conversation.findById(conversationId);
+    let conversation = await Conversation.findById(conversationId);
     if (conversation.label !== undefined) {
-      await Conversation.findByIdAndUpdate(
+      conversation = await Conversation.findByIdAndUpdate(
         { _id: conversationId },
         {
           label: newLabel,
         },
         { new: true }
-      );
+      )
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          model: "User",
+          select: "username _id",
+        },
+      })
+      .populate("member", "avatarURL username phoneNumber")
+      .populate("createdBy", " _id username");
     }
 
-    res.status(200).json(await Conversation.findById(conversationId));
+    res.status(200).json(conversation);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ msg: error });
   }
 };
 
-module.exports.addMemberGroup= async (req, res) => {
-  const { conversationId ,newMember} = req.body;
+module.exports.addMemberGroup = async (req, res) => {
+  const { conversationId, newMember } = req.body;
 
   try {
     const conversation = await Conversation.findOneAndUpdate(
       { _id: conversationId },
-      { $push: { member: {$each:newMember} } },
+      { $push: { member: { $each: newMember } } },
       { new: true }
-    );
+    )
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          model: "User",
+          select: "username _id",
+        },
+      })
+      .populate("member", "avatarURL username phoneNumber")
+      .populate("createdBy", " _id username");
     res.status(200).json(conversation);
   } catch (error) {
     res.status(500).json({ msg: error });
   }
 };
 
-module.exports.deleteGroup= async (req, res) => {
-  const {conversationId} = req.body;
+module.exports.deleteGroup = async (req, res) => {
+  const { conversationId } = req.body;
 
   const user = req.userId;
   try {
-
     const c = await Conversation.findById({ _id: conversationId });
     if (c.createdBy == user) {
       await Conversation.findByIdAndDelete({ _id: conversationId });
 
       res.status(200).json({ msg: "Xóa nhóm chat thành công!" });
     } else {
-      res
-        .status(500)
-        .json({ msg: "Chỉ có admin mới có quyền xóa nhóm chat" });
+      res.status(500).json({ msg: "Chỉ có admin mới có quyền xóa nhóm chat" });
     }
   } catch (error) {
     res.status(500).json({ errorMessage: error });
   }
 };
-module.exports.deleteMember= async (req, res) => {
+module.exports.deleteMember = async (req, res) => {
   const userId = req.userId;
-  const { conversationId,deleteMemberId } = req.body;
+  const { conversationId, deleteMemberId } = req.body;
 
   try {
     const c = await Conversation.findById(conversationId);
-    console.log(userId,c.createdBy)
+    console.log(userId, c.createdBy);
     if (c.createdBy == userId) {
       const conversation = await Conversation.findByIdAndUpdate(
         { _id: conversationId },
         {
-          $pull:{member :{$in : deleteMemberId}}
+          $pull: { member: { $in: deleteMemberId } },
         },
         { new: true }
       );
@@ -132,15 +149,15 @@ module.exports.deleteMember= async (req, res) => {
   }
 };
 
-module.exports.outGroup= async (req, res) => {
+module.exports.outGroup = async (req, res) => {
   const { conversationId } = req.body;
-  const userId  = req.userId;
+  const userId = req.userId;
 
   try {
     const conversation = await Conversation.findByIdAndUpdate(
       { _id: conversationId },
       {
-        $pull:{member : userId}
+        $pull: { member: userId },
       },
       { new: true }
     );

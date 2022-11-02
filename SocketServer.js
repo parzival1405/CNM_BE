@@ -78,6 +78,28 @@ const SocketServer = (socket, query) => {
       user && socket.to(user.socketId).emit("addConversation-receive", data2);
     });
   });
+
+  socket.on("changeGroupName", (data) => {
+    console.log(data)
+    const UserRemain = data.member.filter(
+      (user) => user._id !== data.userChange._id
+    );
+    UserRemain.forEach((element, index) => {
+      const user = users.find((user1) => user1.id === element._id);
+      user && socket.to(user.socketId).emit("changeGroupName-receive", data);
+    });
+  });
+
+  socket.on("addMemberToGroup", (data) => {
+    console.log(data)
+    const UserRemain = data.member.filter(
+      (user) => user._id !== data.userChange._id
+    );
+    UserRemain.forEach((element, index) => {
+      const user = users.find((user1) => user1.id === element._id);
+      user && socket.to(user.socketId).emit("addMemberToGroup-receive", data);
+    });
+  });
 };
 
 module.exports = SocketServer;

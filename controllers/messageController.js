@@ -30,22 +30,6 @@ module.exports.addMessage = async (req, res, next) => {
   }
 };
 
-// module.exports.updateLastMessage = async (req, res) => {
-//   const {messId,conversationId} = req.body;
-//   try {
-//     const conversation = await Conversation.findOneAndUpdate(
-//       { _id: mongoose.Types.ObjectId(conversationId)},
-//       { lastMessage: messId }
-//     )
-//       .select("-updatedAt")
-//       .populate("member", "profilePicture username phoneNumber");
-//     res.status(200).json(conversation);
-//   } catch (error) {
-//     res.status(500).json({ msg: error });
-//   }
-// };
-
-
 module.exports.getAllMessage = async (req, res, next) => {
   try {
     const { conversation } = req.body;
