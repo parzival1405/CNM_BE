@@ -62,16 +62,16 @@ module.exports.changeLabel = async (req, res) => {
         },
         { new: true }
       )
-      .populate({
-        path: "lastMessage",
-        populate: {
-          path: "sender",
-          model: "User",
-          select: "username _id",
-        },
-      })
-      .populate("member", "avatarURL username phoneNumber")
-      .populate("createdBy", " _id username");
+        .populate({
+          path: "lastMessage",
+          populate: {
+            path: "sender",
+            model: "User",
+            select: "username _id",
+          },
+        })
+        .populate("member", "avatarURL username phoneNumber")
+        .populate("createdBy", " _id username");
     }
 
     res.status(200).json(conversation);
@@ -129,7 +129,6 @@ module.exports.deleteMember = async (req, res) => {
 
   try {
     const c = await Conversation.findById(conversationId);
-    console.log(userId, c.createdBy);
     if (c.createdBy == userId) {
       const conversation = await Conversation.findByIdAndUpdate(
         { _id: conversationId },
@@ -162,6 +161,40 @@ module.exports.outGroup = async (req, res) => {
       { new: true }
     );
     res.status(200).json(conversation);
+  } catch (error) {
+    return res.status(500).json({ errorMessage: error });
+  }
+};
+
+module.exports.updateCreator = async (req, res) => {
+  const userId = req.userId;
+  const { conversationId, newCreator } = req.body;
+  console.log(conversationId, userId);
+  try {
+    const conversation = await Conversation.findOneAndUpdate(
+      {
+        $and: [{ _id: conversationId }, { createdBy: userId }],
+      },
+      { createdBy: newCreator },
+      { new: true }
+    )
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          model: "User",
+          select: "username _id",
+        },
+      })
+      .populate("member", "avatarURL username phoneNumber")
+      .populate("createdBy", " _id username");
+    if (conversation) {
+      res.status(200).json(conversation);
+    } else {
+      return res
+        .status(500)
+        .json({ msg: "Chỉ có admin mới có quyền xóa thành viên" });
+    }
   } catch (error) {
     return res.status(500).json({ errorMessage: error });
   }
