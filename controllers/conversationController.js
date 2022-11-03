@@ -111,6 +111,7 @@ module.exports.deleteGroup = async (req, res) => {
 
   const user = req.userId;
   try {
+    let conversation = await Conversation.findById(conversationId);
     const c = await Conversation.findById({ _id: conversationId });
     if (c.createdBy == user) {
       await Conversation.findByIdAndDelete({ _id: conversationId });
@@ -126,17 +127,27 @@ module.exports.deleteGroup = async (req, res) => {
 module.exports.deleteMember = async (req, res) => {
   const userId = req.userId;
   const { conversationId, deleteMemberId } = req.body;
-
   try {
-    const c = await Conversation.findById(conversationId);
-    if (c.createdBy == userId) {
-      const conversation = await Conversation.findByIdAndUpdate(
-        { _id: conversationId },
-        {
-          $pull: { member: { $in: deleteMemberId } },
+    const conversation = await Conversation.findOneAndUpdate(
+      {
+        $and: [{ _id: conversationId }, { createdBy: userId }],
+      },
+      {
+        $pull: { member: { $in: deleteMemberId } },
+      },
+      { new: true }
+    )
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          model: "User",
+          select: "username _id",
         },
-        { new: true }
-      );
+      })
+      .populate("member", "avatarURL username phoneNumber")
+      .populate("createdBy", " _id username");
+    if (conversation) {
       res.status(200).json(conversation);
     } else {
       return res
@@ -159,7 +170,17 @@ module.exports.outGroup = async (req, res) => {
         $pull: { member: userId },
       },
       { new: true }
-    );
+    )
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          model: "User",
+          select: "username _id",
+        },
+      })
+      .populate("member", "avatarURL username phoneNumber")
+      .populate("createdBy", " _id username");
     res.status(200).json(conversation);
   } catch (error) {
     return res.status(500).json({ errorMessage: error });
@@ -169,7 +190,6 @@ module.exports.outGroup = async (req, res) => {
 module.exports.updateCreator = async (req, res) => {
   const userId = req.userId;
   const { conversationId, newCreator } = req.body;
-  console.log(conversationId, userId);
   try {
     const conversation = await Conversation.findOneAndUpdate(
       {
