@@ -70,58 +70,64 @@ const SocketServer = (socket, query) => {
 
   socket.on("addConversation", (data) => {
     const data2 = JSON.parse(data);
-    const UserRemain = data2.member.filter(
+    const UserRemain = data2.conversation.member.filter(
       (user) => user._id !== data2.createdBy._id
     );
     UserRemain.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
-      user && socket.to(user.socketId).emit("addConversation-receive", data2);
+      user && socket.to(user.socketId).emit("addConversation-receive", data2.conversation);
     });
   });
 
   socket.on("changeGroupName", (data) => {
-    const UserRemain = data.member.filter(
-      (user) => user._id !== data.userChange._id
+    const data2 = JSON.parse(data);
+    const UserRemain = data2.conversation.member.filter(
+      (user) => user._id !== data2.userChange
     );
     UserRemain.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
-      user && socket.to(user.socketId).emit("changeGroupName-receive", data);
+      user && socket.to(user.socketId).emit("changeGroupName-receive", data2.conversation);
     });
   });
 
   socket.on("addMemberToGroup", (data) => {
-    const UserRemain = data.member.filter(
-      (user) => user._id !== data.userChange._id
+    const data2 = JSON.parse(data);
+    const UserRemain = data2.conversation.member.filter(
+      (user) => user._id !== data2.userChange
     );
     UserRemain.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
-      user && socket.to(user.socketId).emit("addMemberToGroup-receive", data);
+      user && socket.to(user.socketId).emit("addMemberToGroup-receive", data2.conversation);
     });
   });
   
   socket.on("deleteMemberGroup", (data) => {
-    const UserRemain = data.member.filter(
-      (user) => user._id !== data.createdBy._id
+    const data2 = JSON.parse(data);
+    const UserRemain = data2.conversation.member.filter(
+      (user) => user._id !== data2.conversation.createdBy
     );
     UserRemain.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
-      user && socket.to(user.socketId).emit("deleteMemberGroup-receive", data);
+      user && socket.to(user.socketId).emit("deleteMemberGroup-receive", data2.conversation);
     });
   });
 
   socket.on("changeCreatorGroup", (data) => {
-    const UserRemain = data.member.filter(
-      (user) => user._id !== data.oldCreator._id
+    const data2 = JSON.parse(data);
+    const UserRemain = data2.conversation.member.filter(
+      (user) => user._id !== data2.oldCreator
     );
     UserRemain.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
-      user && socket.to(user.socketId).emit("changeCreatorGroup-receive", data);
+      user && socket.to(user.socketId).emit("changeCreatorGroup-receive", data2.conversation);
     });
   });
   socket.on("outGroup", (data) => {
-    data.member.forEach((element, index) => {
+    const data2 = JSON.parse(data);
+    console.log(data2)
+    data2.conversation.member.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
-      user && socket.to(user.socketId).emit("outGroup-receive", data);
+      user && socket.to(user.socketId).emit("outGroup-receive", data2.conversation);
     });
   });
 };
