@@ -37,7 +37,6 @@ module.exports.createConversation = async (req, res) => {
     const conversation = await Conversation.findById({
       _id: savedConversation._id,
     })
-      .select("-updatedAt")
       .populate("member", "avatarURL username phoneNumber")
       // .populate("lastMessage", "text updatedAt")
       .populate("createdBy", " _id username");
@@ -107,16 +106,16 @@ module.exports.addMemberGroup = async (req, res) => {
 };
 
 module.exports.deleteGroup = async (req, res) => {
-  const { conversationId } = req.body;
-
-  const user = req.userId;
+  const userId = req.userId;
+  const { conversationId, deleteMemberId } = req.body;
   try {
-    let conversation = await Conversation.findById(conversationId);
-    const c = await Conversation.findById({ _id: conversationId });
-    if (c.createdBy == user) {
+    const conversation = await Conversation.findOneAndDelete({
+      $and: [{ _id: conversationId }, { createdBy: userId }],
+    });
+    if (conversation) {
       await Conversation.findByIdAndDelete({ _id: conversationId });
 
-      res.status(200).json({ msg: "Xóa nhóm chat thành công!" });
+      res.status(200).json(conversation);
     } else {
       res.status(500).json({ msg: "Chỉ có admin mới có quyền xóa nhóm chat" });
     }
