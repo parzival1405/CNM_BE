@@ -111,7 +111,7 @@ const SocketServer = (socket, query) => {
       user && socket.to(user.socketId).emit("deleteMemberGroup-receive", data2.conversation);
     });
     const deleteUser = users.find((user1) => user1.id === data2.deleteUser);
-    socket.to(deleteUser.socketId).emit("deleteMemberGroup-receive", data2.conversation);
+    deleteUser && socket.to(deleteUser.socketId).emit("deleteMemberGroup-receive", data2.conversation);
   });
 
   socket.on("changeCreatorGroup", (data) => {
