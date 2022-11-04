@@ -71,7 +71,7 @@ const SocketServer = (socket, query) => {
   socket.on("addConversation", (data) => {
     const data2 = JSON.parse(data);
     const UserRemain = data2.conversation.member.filter(
-      (user) => user._id !== data2.createdBy._id
+      (user) => user._id !== data2.conversation.createdBy._id
     );
     UserRemain.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
