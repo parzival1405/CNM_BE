@@ -42,9 +42,11 @@ module.exports.getUserByPhonenumber = async (req, res) => {
     const existingUser = await User.findOne({
       $and: [
         { phoneNumber },
-        { _id: { $ne: mongoose.Types.ObjectId(req.userId) } },
       ],
-    });
+    }).populate(
+      "friends friendsQueue",
+      "username avatarURL _id"
+    );;
 
     return res.status(200).json(existingUser);
   } catch (error) {
