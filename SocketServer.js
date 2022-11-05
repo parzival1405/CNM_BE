@@ -159,7 +159,7 @@ const SocketServer = (socket, query) => {
     const data2 = JSON.parse(data);
     console.log(data2)
     data2.conversation.member.forEach((element, index) => {
-      const user = users.find((user1) => user1.id === element);
+      const user = users.find((user1) => user1.id === element._id);
       user &&
         socket
           .to(user.socketId)

@@ -111,7 +111,16 @@ module.exports.deleteGroup = async (req, res) => {
   try {
     const conversation = await Conversation.findOneAndDelete({
       $and: [{ _id: conversationId }, { createdBy: userId }],
-    });
+    }).populate({
+      path: "lastMessage",
+      populate: {
+        path: "sender",
+        model: "User",
+        select: "username _id",
+      },
+    })
+    .populate("member", "avatarURL username phoneNumber")
+    .populate("createdBy", " _id username");;
     if (conversation) {
       await Conversation.findByIdAndDelete({ _id: conversationId });
 
