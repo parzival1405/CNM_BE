@@ -11,7 +11,7 @@ module.exports.signin = async (req, res) => {
   try {
     const existingUser = await User.findOne({ phoneNumber }).populate(
       "friends friendsQueue",
-      "username avatarURL phoneNumber"
+      "username avatarURL phoneNumber _id"
     );
 
     if (!existingUser) {

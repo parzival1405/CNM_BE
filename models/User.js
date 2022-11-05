@@ -6,10 +6,10 @@ const UserSchema = mongoose.Schema({
     password: {type: String, required: true},
     phoneNumber:{type:String,require:true},
     avatarURL:{type: String, required: true},
-    friends: {type: [],require:false,ref: "User"},
+    friends: {type: [{ type: mongoose.Types.ObjectId, ref: "User" }],require:false,ref: "User"},
     nickname:{type: String, required: false},
     gender:{type:Boolean,require:true,default:true},
-    friendsQueue: {type: [],require:false,ref: "User"},
+    friendsQueue: {type: [{ type: mongoose.Types.ObjectId, ref: "User" }],require:false,ref: "User"},
     dob:{type: String, required: false},
 })
 

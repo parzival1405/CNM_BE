@@ -48,6 +48,7 @@ const SocketServer = (socket, query) => {
 
   socket.on("send-msg", async (data) => {
     const data2 = JSON.parse(data);
+    console.log(data2)
     const UserRemain = data2.conversation.member.filter(
       (user) => user._id !== data2.sender._id
     );
@@ -59,6 +60,7 @@ const SocketServer = (socket, query) => {
 
   socket.on("delete-msg", async (data) => {
     const data2 = JSON.parse(data);
+    console.log(data2)
     const UserRemain = data2.conversation.member.filter(
       (user) => user._id !== data2.sender._id
     );

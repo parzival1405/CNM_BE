@@ -54,7 +54,7 @@ module.exports.uploadFile = async (req, res, next) => {
     const file = req.file
     const code = await s3.generateUploadURL(file, imageName);
     return res.json({
-      data: "https://cmn-savefile.s3.ap-northeast-1.amazonaws.com/" + code,
+      data: "https://tuan3demogroup.s3.ap-northeast-1.amazonaws.com/" + code,
     });
   } catch (error) {
     next(error);
