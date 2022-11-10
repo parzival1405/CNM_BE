@@ -168,6 +168,16 @@ const SocketServer = (socket, query) => {
           .emit("deleteGroup-receive", data2.conversation);
     });
   });
+
+  socket.on("requestAddFriend", (data) => {
+    const data2 = JSON.parse(data);
+    const client = users.find((user) => user.id === data2.to);
+    console.log(client)
+    if (client) {
+      socket.to(`${client.socketId}`).emit("requestAddFriendToClient", data2.dataSocket);
+    }
+  });
+   
 };
 
 module.exports = SocketServer;
