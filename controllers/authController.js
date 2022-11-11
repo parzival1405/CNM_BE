@@ -93,11 +93,9 @@ module.exports.checkOTP = async (req, res) => {
       return res.status(400).json({ message: "Sai mật khẩu", errorCode: 2 });
     }
 
-    res
-      .status(200)
-      .json({
-        user: { phoneNumber, password, isVerifyOtp: existingUser.isVerifyOtp },
-      });
+    res.status(200).json({
+      user: { phoneNumber, password, isVerifyOtp: existingUser.isVerifyOtp },
+    });
   } catch (err) {
     res.status(500).json({ message: "Something went wrong!" });
   }
@@ -110,15 +108,13 @@ module.exports.updatePhonenumber = async (req, res) => {
     const existingUser = await User.findOneAndUpdate(
       { _id: userId },
       {
-        phoneNumber:phoneNumber
+        phoneNumber: phoneNumber,
       }
     );
 
-    res
-      .status(200)
-      .json({
-        existingUser
-      });
+    res.status(200).json({
+      existingUser,
+    });
   } catch (err) {
     res.status(500).json({ message: "Something went wrong!" });
   }
@@ -133,15 +129,48 @@ module.exports.updatePassword = async (req, res) => {
     const existingUser = await User.findOneAndUpdate(
       { _id: userId },
       {
-        password:hashedPassword
+        password: hashedPassword,
       }
     );
 
-    res
-      .status(200)
-      .json({
-        existingUser
-      });
+    res.status(200).json({
+      existingUser,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong!" });
+  }
+};
+
+module.exports.forgotPassword = async (req, res) => {
+  const { phoneNumber, newPassword } = req.body;
+  const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+  try {
+    await User.findOneAndUpdate(
+      { phoneNumber },
+      {
+        password: hashedPassword,
+      }
+    );
+
+    res.status(200).json({
+      message: "Lấy lại mật khẩu thành công",
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong!" });
+  }
+};
+
+module.exports.checkPhonenumber = async (req, res) => {
+  const { phoneNumber } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ phoneNumber });
+
+    if (existingUser) {
+      return res.status(200).json({ isExist: true });
+    }
+    return res.status(200).json({ isExist: false });
   } catch (err) {
     res.status(500).json({ message: "Something went wrong!" });
   }
