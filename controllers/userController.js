@@ -99,6 +99,13 @@ module.exports.acceptFriend = async (req, res) => {
       }
     );
 
+    await User.findOneAndUpdate(
+      { _id: acceptFriendId },
+      {
+        $push: { friends: userId },
+      }
+    );
+
     const user = await User.findOne(
       { _id: userId }
     ).populate(
@@ -161,6 +168,14 @@ module.exports.deleteFriend = async (req, res) => {
         $pull: { friends: deleteFriendId }
       }
     );
+
+    await User.findOneAndUpdate(
+      { _id: deleteFriendId },
+      {
+        $pull: { friends: userId }
+      }
+    );
+
     const user = await User.findOne(
       { _id: userId }
     ).populate(
