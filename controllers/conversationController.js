@@ -30,6 +30,7 @@ module.exports.createConversation = async (req, res) => {
     label: req.body.label,
     member: req.body.member,
     createdBy: req.body.createdBy,
+    isGroup:req.body.isGroup,
   });
 
   try {

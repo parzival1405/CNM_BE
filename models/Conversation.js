@@ -8,6 +8,7 @@ const ConversationSchema = new mongoose.Schema(
     },
     lastMessage: { type: mongoose.Types.ObjectId, ref: "Messages",default:null },
     createdBy: { type: mongoose.Types.ObjectId, ref: "User" },
+    isGroup: {type:Boolean,require:true,default:false}
   },
   { timestamps: true }
 );
