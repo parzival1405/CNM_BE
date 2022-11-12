@@ -8,7 +8,6 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const messageRoutes = require("./routes/message");
 const conversationRoutes = require("./routes/conversations");
-const message = require("./models/message");
 const s3 = require("./utils/s3")
 const app = express();
 require("dotenv").config();

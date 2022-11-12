@@ -1,4 +1,4 @@
-const Messages = require("../models/message");
+const Messages = require("../models/Messages");
 require("dotenv").config();
 const s3 = require("../utils/s3");
 const crypto = require("crypto");
