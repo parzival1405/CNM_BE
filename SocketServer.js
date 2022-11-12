@@ -1,9 +1,7 @@
 let users = [];
-let rooms = [];
 
 const SocketServer = (socket, query) => {
   console.log("new connection");
-  // console.log("here" + query._id)
 
   const HasUser = users.find((user1) => user1.id === query._id);
   if (HasUser) {
@@ -16,13 +14,17 @@ const SocketServer = (socket, query) => {
     users.push({
       id: query._id,
       socketId: socket.id,
-      friends: query.friends,
-      username: query.username,
-      avatarURL: query.avatarURL,
+      // friends: query.friends,
+      // username: query.username,
+      // avatarURL: query.avatarURL,
     });
   }
 
+  console.log("users",users)
+
   socket.on("disconnect", () => {
+    console.log("disconnect");
+    console.log(socket.id);
     users = users.filter((user) => user.socketId !== socket.id);
   });
 
@@ -48,7 +50,6 @@ const SocketServer = (socket, query) => {
 
   socket.on("send-msg", async (data) => {
     const data2 = JSON.parse(data);
-    console.log(data2)
     const UserRemain = data2.conversation.member.filter(
       (user) => user._id !== data2.sender._id
     );
@@ -60,7 +61,6 @@ const SocketServer = (socket, query) => {
 
   socket.on("delete-msg", async (data) => {
     const data2 = JSON.parse(data);
-    console.log(data2)
     const UserRemain = data2.conversation.member.filter(
       (user) => user._id !== data2.sender._id
     );
@@ -172,7 +172,7 @@ const SocketServer = (socket, query) => {
   socket.on("requestAddFriend", (data) => {
     const data2 = JSON.parse(data);
     const client = users.find((user) => user.id === data2.to);
-    console.log(client)
+    console.log(client);
     if (client) {
       socket.to(`${client.socketId}`).emit("requestAddFriendToClient", data2.dataSocket);
     }

@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const User = require("../models/user.js");
+const User = require("../models/User");
 
 require("dotenv").config();
 
@@ -107,9 +107,10 @@ module.exports.updatePhonenumber = async (req, res) => {
   try {
     const existingUser = await User.findOneAndUpdate(
       { _id: userId },
-      {
-        phoneNumber: phoneNumber,
-      }
+      { phoneNumber: phoneNumber }, { new: true }
+    ).populate(
+      "friends friendsQueue",
+      "username avatarURL phoneNumber _id"
     );
 
     res.status(200).json({
@@ -127,10 +128,10 @@ module.exports.updatePassword = async (req, res) => {
 
   try {
     const existingUser = await User.findOneAndUpdate(
-      { _id: userId },
-      {
-        password: hashedPassword,
-      }
+      { _id: userId }, { password: hashedPassword }, { new: true }
+    ).populate(
+      "friends friendsQueue",
+      "username avatarURL phoneNumber _id"
     );
 
     res.status(200).json({
