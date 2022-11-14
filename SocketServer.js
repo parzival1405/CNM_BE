@@ -20,7 +20,7 @@ const SocketServer = (socket, query) => {
     });
   }
 
-  console.log("users",users)
+  console.log("users", users);
 
   socket.on("disconnect", () => {
     console.log("disconnect");
@@ -159,7 +159,7 @@ const SocketServer = (socket, query) => {
   });
   socket.on("deleteGroup", (data) => {
     const data2 = JSON.parse(data);
-    console.log(data2)
+    console.log(data2);
     data2.conversation.member.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
       user &&
@@ -174,10 +174,37 @@ const SocketServer = (socket, query) => {
     const client = users.find((user) => user.id === data2.to);
     console.log(client);
     if (client) {
-      socket.to(`${client.socketId}`).emit("requestAddFriendToClient", data2.dataSocket);
+      socket
+        .to(`${client.socketId}`)
+        .emit("requestAddFriendToClient", data2.dataSocket);
     }
   });
-   
+  socket.on("onTypingText", (data) => {
+    const data2 = JSON.parse(data);
+    data2.member.forEach((element, index) => {
+      const user = users.find((user1) => user1.id === element._id);
+      user &&
+        socket.to(`${user.socketId}`).emit("onTypingTextToClient", {
+          conversationId: data2.conversationId,
+          sender: data2.sender,
+          isTyping: true,
+        });
+    });
+    return;
+  });
+  socket.on("offTypingText", (data) => {
+    const data2 = JSON.parse(data);
+    data2.member.forEach((element, index) => {
+      const user = users.find((user1) => user1.id === element._id);
+      user &&
+        socket.to(`${user.socketId}`).emit("offTypingTextToClient", {
+          conversationId: data2.conversationId,
+          sender: data2.sender,
+          isTyping: false,
+        });
+    });
+    return;
+  });
 };
 
 module.exports = SocketServer;
