@@ -7,6 +7,7 @@ const {
   deleteMember,
   outGroup,
   updateCreator,
+  getImageAndVideo
 } = require("../controllers/conversationController");
 const { auth } = require("../middleware/auth");
 
@@ -20,5 +21,6 @@ router.post("/deleteGroup", auth, deleteGroup);
 router.post("/deleteMember", auth, deleteMember);
 router.post("/outGroup", auth, outGroup);
 router.post("/updateCreator", auth, updateCreator);
+router.post("/getImageAndVideo",auth, getImageAndVideo);
 
 module.exports = router;

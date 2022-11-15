@@ -52,10 +52,14 @@ module.exports.uploadFile = async (req, res, next) => {
     const rawBytes = await randomBytes(16);
     const imageName = rawBytes.toString("hex");
     const file = req.file
-    const code = await s3.generateUploadURL(file, imageName);
+    const image = req.file.originalname.split('.')
+
+    const fileType = image[image.length - 1]
+    const code = await s3.generateUploadURL(file, imageName,fileType);
+    
     return res.json({
-      data: "https://tuan3demogroup.s3.ap-northeast-1.amazonaws.com/" + code,
-    });
+      data: `https://${process.env.CLOUND_FRONT_URL}/${code}`,
+    }); 
   } catch (error) {
     next(error);
   }

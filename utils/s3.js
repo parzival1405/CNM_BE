@@ -17,17 +17,17 @@ const s3 = new aws.S3({
   signatureVersion: "v4",
 });
 
-const generateUploadURL = async (item,imageName) => {
+const generateUploadURL = async (item,imageName,fileType) => {
   const params = {
     Bucket: bucketName,
-    Key: imageName,
+    Key: `${imageName}.${fileType}`,
     Expires: 60,
     Body: item.buffer,
   };
 
   try{
     const code = await s3.upload(params).promise();
-    return code.Key;
+    return `${imageName}.${fileType}`;
   } catch(err){
     console.log(err)
   }

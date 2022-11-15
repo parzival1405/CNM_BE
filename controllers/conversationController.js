@@ -1,4 +1,5 @@
 const Conversation = require("../models/Conversation");
+const Messages = require("../models/Messages");
 var mongoose = require("mongoose");
 
 require("dotenv").config();
@@ -30,7 +31,7 @@ module.exports.createConversation = async (req, res) => {
     label: req.body.label,
     member: req.body.member,
     createdBy: req.body.createdBy,
-    isGroup:req.body.isGroup,
+    isGroup: req.body.isGroup,
   });
 
   try {
@@ -112,16 +113,17 @@ module.exports.deleteGroup = async (req, res) => {
   try {
     const conversation = await Conversation.findOneAndDelete({
       $and: [{ _id: conversationId }, { createdBy: userId }],
-    }).populate({
-      path: "lastMessage",
-      populate: {
-        path: "sender",
-        model: "User",
-        select: "username _id",
-      },
     })
-    .populate("member", "avatarURL username phoneNumber")
-    .populate("createdBy", " _id username");;
+      .populate({
+        path: "lastMessage",
+        populate: {
+          path: "sender",
+          model: "User",
+          select: "username _id",
+        },
+      })
+      .populate("member", "avatarURL username phoneNumber")
+      .populate("createdBy", " _id username");
     if (conversation) {
       await Conversation.findByIdAndDelete({ _id: conversationId });
 
@@ -226,5 +228,30 @@ module.exports.updateCreator = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({ errorMessage: error });
+  }
+};
+
+module.exports.getImageAndVideo = async (req, res) => {
+  const { conversationId } = req.body;
+  const media = await Messages.aggregate([
+    {
+      $match: {
+        conversation: mongoose.Types.ObjectId(conversationId),
+      },
+    },
+    { $match: { media: { $exists: true, $not: { $size: 0 } } } },
+    { $project: { media: "$media" } },
+    { $unwind: "$media" },
+    {
+      $match: {
+        "media.type": { $in: [/^image/i, /^video/] },
+      },
+    },
+  ]);
+
+  try {
+    res.status(200).json({ media });
+  } catch (error) {
+    res.status(500).json({ msg: error });
   }
 };
