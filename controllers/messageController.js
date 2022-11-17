@@ -5,6 +5,36 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 var mongoose = require("mongoose");
 const Conversation = require("../models/Conversation");
+class APIfeatures {
+  constructor(query, queryString){
+      this.query = query;
+      this.queryString = queryString;
+  }
+
+  paginating(){
+      const page = this.queryString.page * 1 ||1
+      const limit = this.queryString.limit * 1 || 15
+      const skip = this.queryString.skip
+      this.query = this.query.skip(skip).limit(limit)
+      return this;
+  }
+}
+
+module.exports.getMessageByConversationId = async (req, res, next) => {
+  try {
+    const { conversation } = req.body;
+    const features = new APIfeatures(Messages.find({conversation: conversation}), req.body).paginating()
+    const messages = await features.query
+      .select("-updatedAt")
+      .sort({ createdAt: -1 })
+      .populate("sender", "_id username avatarURL");
+
+    return res.json({ data: messages });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports.addMessage = async (req, res, next) => {
   try {
     const { sender, conversation, text, type, media } = req.body;
