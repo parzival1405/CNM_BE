@@ -1,5 +1,6 @@
 const User = require("../models/User");
 var mongoose = require("mongoose");
+const { find, findOne, findById } = require("../models/User");
 
 require("dotenv").config();
 
@@ -91,6 +92,13 @@ module.exports.acceptFriend = async (req, res) => {
   const userId = req.userId;
   const { acceptFriendId } = req.body;
   try {
+    const check = await User.findById({ _id: userId })
+    console.log(check)
+    if(check.friends.includes(acceptFriendId)){
+      return res.status(500).json({
+        message: "Something went wrong!",
+      });
+    }
     await User.findOneAndUpdate(
       { _id: userId },
       {

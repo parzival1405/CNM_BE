@@ -255,3 +255,20 @@ module.exports.getImageAndVideo = async (req, res) => {
     res.status(500).json({ msg: error });
   }
 };
+
+module.exports.checkConversation = async (req, res) => {
+  const { member } = req.body;
+  try {
+    const conversation = await Conversation.findOne({
+      member: { $all: member },
+      isGroup: false,
+    });
+    if (conversation) {
+      res.status(200).json({ already: true });
+    } else {
+      res.status(200).json({ already: false });
+    }
+  } catch (error) {
+    res.status(500).json({ msg: error });
+  }
+};

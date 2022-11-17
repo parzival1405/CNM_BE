@@ -159,7 +159,6 @@ const SocketServer = (socket, query) => {
   });
   socket.on("deleteGroup", (data) => {
     const data2 = JSON.parse(data);
-    console.log(data2);
     data2.conversation.member.forEach((element, index) => {
       const user = users.find((user1) => user1.id === element._id);
       user &&
@@ -172,7 +171,6 @@ const SocketServer = (socket, query) => {
   socket.on("requestAddFriend", (data) => {
     const data2 = JSON.parse(data);
     const client = users.find((user) => user.id === data2.to);
-    console.log(client);
     if (client) {
       socket
         .to(`${client.socketId}`)
@@ -204,6 +202,25 @@ const SocketServer = (socket, query) => {
         });
     });
     return;
+  });
+  socket.on("acceptAddFriend", (data) => {
+    const data2 = JSON.parse(data);
+    const client = users.find((user) => user.id === data2.recipient);
+    if (client) {
+      socket
+        .to(`${client.socketId}`)
+        .emit("acceptAddFriendToClient", data2.sender);
+    }
+  });
+
+  socket.on("deleteFriend", (data) => {
+    const data2 = JSON.parse(data);
+    const client = users.find((user) => user.id === data2.recipient);
+    if (client) {
+      socket
+        .to(`${client.socketId}`)
+        .emit("deleteFriendToClient", data2.sender);
+    }
   });
 };
 
