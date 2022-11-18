@@ -212,6 +212,15 @@ const SocketServer = (socket, query) => {
         .emit("acceptAddFriendToClient", data2.sender);
     }
   });
+  socket.on("recallFriend", (data) => {
+    const data2 = JSON.parse(data);
+    const client = users.find((user) => user.id === data2.recipient);
+    if (client) {
+      socket
+        .to(`${client.socketId}`)
+        .emit("recallFriendToClient", data2.sender);
+    }
+  });
 
   socket.on("deleteFriend", (data) => {
     const data2 = JSON.parse(data);

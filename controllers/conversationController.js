@@ -239,7 +239,7 @@ module.exports.getImageAndVideo = async (req, res) => {
         conversation: mongoose.Types.ObjectId(conversationId),
       },
     },
-    { $match: { media: { $exists: true, $not: { $size: 0 } } } },
+    { $match: { media: { $exists: true, $not: { $size: 0 } },isDelete:false } },
     { $project: { media: "$media" } },
     { $unwind: "$media" },
     {

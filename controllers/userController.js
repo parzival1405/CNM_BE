@@ -61,7 +61,16 @@ module.exports.requestAddFriend = async (req, res) => {
       { $push: { friendsQueue: mongoose.Types.ObjectId(req.userId) } }
     );
 
-    return res.status(200).json("requestAddFriend success");
+    const user = await User.findOneAndUpdate(
+      { _id: req.userId },
+      { $push: { SendRequestQueue: mongoose.Types.ObjectId(userId) } },
+      { new: true }
+    ).populate(
+      "friends friendsQueue SendRequestQueue",
+      "username avatarURL phoneNumber _id"
+    );
+
+    return res.status(200).json(user);
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -92,9 +101,8 @@ module.exports.acceptFriend = async (req, res) => {
   const userId = req.userId;
   const { acceptFriendId } = req.body;
   try {
-    const check = await User.findById({ _id: userId })
-    console.log(check)
-    if(check.friends.includes(acceptFriendId)){
+    const check = await User.findById({ _id: userId });
+    if (check.friends.includes(acceptFriendId)) {
       return res.status(500).json({
         message: "Something went wrong!",
       });
@@ -103,7 +111,7 @@ module.exports.acceptFriend = async (req, res) => {
       { _id: userId },
       {
         $push: { friends: acceptFriendId },
-        $pull: { friendsQueue: acceptFriendId }
+        $pull: { friendsQueue: acceptFriendId },
       }
     );
 
@@ -111,13 +119,12 @@ module.exports.acceptFriend = async (req, res) => {
       { _id: acceptFriendId },
       {
         $push: { friends: userId },
+        $pull: { SendRequestQueue: userId },
       }
     );
 
-    const user = await User.findOne(
-      { _id: userId }
-    ).populate(
-      "friends friendsQueue",
+    const user = await User.findOne({ _id: userId }).populate(
+      "friends friendsQueue SendRequestQueue",
       "username avatarURL phoneNumber _id"
     );
     if (user) {
@@ -139,16 +146,21 @@ module.exports.deniedFriend = async (req, res) => {
   const userId = req.userId;
   const { deniedFriendId } = req.body;
   try {
+    // use {new}
     await User.findOneAndUpdate(
       { _id: userId },
       {
-        $pull: { friendsQueue: deniedFriendId }
+        $pull: { friendsQueue: deniedFriendId },
       }
     );
-    const user = await User.findOne(
-      { _id: userId }
-    ).populate(
-      "friends friendsQueue",
+    await User.findOneAndUpdate(
+      { _id: deniedFriendId },
+      {
+        $pull: { SendRequestQueue: userId },
+      }
+    );
+    const user = await User.findOne({ _id: userId }).populate(
+      "friends friendsQueue SendRequestQueue",
       "username avatarURL phoneNumber _id"
     );
     if (user) {
@@ -170,24 +182,61 @@ module.exports.deleteFriend = async (req, res) => {
   const userId = req.userId;
   const { deleteFriendId } = req.body;
   try {
+    // use {new}
     await User.findOneAndUpdate(
       { _id: userId },
       {
-        $pull: { friends: deleteFriendId }
+        $pull: { friends: deleteFriendId },
       }
     );
 
     await User.findOneAndUpdate(
       { _id: deleteFriendId },
       {
-        $pull: { friends: userId }
+        $pull: { friends: userId },
       }
     );
 
-    const user = await User.findOne(
-      { _id: userId }
+    const user = await User.findOne({ _id: userId }).populate(
+      "friends friendsQueue SendRequestQueue",
+      "username avatarURL phoneNumber _id"
+    );
+    if (user) {
+      return res.status(200).json(user);
+    } else {
+      return res.status(500).json({
+        message: "Something went wrong!",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Something went wrong!",
+    });
+  }
+};
+
+module.exports.recallFriend = async (req, res) => {
+  const userId = req.userId;
+  const { recallFriendRequestId } = req.body;
+  try {
+    // use {new}
+
+    await User.findOneAndUpdate(
+      { _id: recallFriendRequestId },
+      {
+        $pull: { friendsQueue: userId },
+      },
+      { new: true }
+    );
+
+    const user = await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        $pull: { SendRequestQueue: recallFriendRequestId },
+      }
     ).populate(
-      "friends friendsQueue",
+      "friends friendsQueue SendRequestQueue",
       "username avatarURL phoneNumber _id"
     );
     if (user) {

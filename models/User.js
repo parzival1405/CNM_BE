@@ -10,6 +10,7 @@ const UserSchema = mongoose.Schema({
     nickname:{type: String, required: false},
     gender:{type:Boolean,require:true,default:true},
     friendsQueue: {type: [{ type: mongoose.Types.ObjectId, ref: "User" }],require:false,ref: "User"},
+    SendRequestQueue: {type: [{ type: mongoose.Types.ObjectId, ref: "User" }],require:false,ref: "User"},
     dob:{type: String, required: false},
 },{ timestamps: true })
 

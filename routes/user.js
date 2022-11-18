@@ -5,7 +5,8 @@ const {
   updateProfile,
   acceptFriend,
   deniedFriend,
-  deleteFriend
+  deleteFriend,
+  recallFriend
 } = require("../controllers/userController");
 const { auth } = require("../middleware/auth");
 const router = require("express").Router();
@@ -17,5 +18,6 @@ router.post("/updateProfile", auth, updateProfile);
 router.post("/acceptFriend", auth, acceptFriend);
 router.post("/deniedFriend", auth, deniedFriend);
 router.post("/deleteFriend", auth, deleteFriend);
+router.post("/recallFriend", auth, recallFriend);
 
 module.exports = router;
