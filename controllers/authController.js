@@ -109,7 +109,7 @@ module.exports.updatePhonenumber = async (req, res) => {
       { _id: userId },
       { phoneNumber: phoneNumber }, { new: true }
     ).populate(
-      "friends friendsQueue",
+      "friends friendsQueue SendRequestQueue",
       "username avatarURL phoneNumber _id"
     );
 
@@ -130,7 +130,7 @@ module.exports.updatePassword = async (req, res) => {
     const existingUser = await User.findOneAndUpdate(
       { _id: userId }, { password: hashedPassword }, { new: true }
     ).populate(
-      "friends friendsQueue",
+      "friends friendsQueue SendRequestQueue",
       "username avatarURL phoneNumber _id"
     );
 

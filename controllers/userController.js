@@ -42,7 +42,7 @@ module.exports.getUserByPhonenumber = async (req, res) => {
   try {
     const existingUser = await User.findOne({
       $and: [{ phoneNumber }],
-    }).populate("friends friendsQueue", "username avatarURL phoneNumber _id");
+    }).populate("friends friendsQueue SendRequestQueue", "username avatarURL phoneNumber _id");
 
     return res.status(200).json(existingUser);
   } catch (error) {
