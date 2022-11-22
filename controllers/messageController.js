@@ -37,13 +37,14 @@ module.exports.getMessageByConversationId = async (req, res, next) => {
 
 module.exports.addMessage = async (req, res, next) => {
   try {
-    const { sender, conversation, text, type, media } = req.body;
+    const { sender, conversation, text, type, media,call } = req.body;
     const data = await Messages.create({
       conversation: conversation._id,
       sender: sender,
       text: text,
       type: type,
       media: media,
+      call:call,
     }).then((data) => data.populate("sender", "_id avatarURL username"));
     await Conversation.findOneAndUpdate(
       { _id: mongoose.Types.ObjectId(conversation._id)},
