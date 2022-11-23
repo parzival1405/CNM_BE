@@ -20,10 +20,29 @@ const SocketServer = (socket, query) => {
     });
   }
 
-  console.log(
-    "users",
-    users.map((u) => u.id + " " + u.socketId)
+  socket.on("checkUserOnline", (data) => {
+    let friends = users.filter((user) =>
+      data.friends.find((item) => item._id === user.id)
+    );
+    friends = friends.map((friend) => friend.id);
+
+    socket.emit("checkUserOnlineToMe", friends);
+  });
+
+  let friends2 = users.filter((user) =>
+    query.friends.split(",").find((item) => item === user.id)
   );
+
+  console.log("here",friends2);
+
+  if (friends2.length > 0) {
+    friends2.forEach((client) => {
+      socket
+        .to(`${client.socketId}`)
+        .emit("checkUserOnlineToClient", query._id);
+    });
+  }
+
 
   socket.on("disconnect", () => {
     console.log("disconnect");
@@ -42,7 +61,7 @@ const SocketServer = (socket, query) => {
         });
       }
     }
-    if (offUser.call) {
+    if (offUser?.call) {
       const callUser = users.find((user) => user.id === offUser.call);
       if (callUser) {
         users = EditData(users, callUser.id, null);
@@ -94,27 +113,6 @@ const SocketServer = (socket, query) => {
       }
     }
   });
-
-  // socket.on("add-user", (user) => {
-  //   const HasUser = users.find((user1) => user1.id === user._id);
-  //   if (HasUser) {
-  //     users.map((user1) => {
-  //       if (user1.id === user._id) {
-  //         user1.socketId = socket.id;
-  //       }
-  //     });
-  //   } else {
-  //     users.push({
-  //       id: user._id,
-  //       socketId: socket.id,
-  //       friends: user.friends,
-  //       username: user.username,
-  //       avatarURL: user.avatarURL,
-  //     });
-  //   }
-  //   console.log(users);
-  // });
-
   socket.on("send-msg", async (data) => {
     const data2 = JSON.parse(data);
     const UserRemain = data2.conversation.member.filter(
@@ -237,11 +235,11 @@ const SocketServer = (socket, query) => {
 
   socket.on("requestAddFriend", (data) => {
     const data2 = JSON.parse(data);
-    const client = users.find((user) => user.id === data2.to);
+    const client = users.find((user) => user.id === data2.recipient);
     if (client) {
       socket
         .to(`${client.socketId}`)
-        .emit("requestAddFriendToClient", data2.dataSocket);
+        .emit("requestAddFriendToClient", data2.sender);
     }
   });
   socket.on("onTypingText", (data) => {
@@ -294,22 +292,6 @@ const SocketServer = (socket, query) => {
       socket
         .to(`${client.socketId}`)
         .emit("deleteFriendToClient", data2.sender);
-    }
-  });
-
-  socket.on("checkUserOnline", (data) => {
-    const user = users.find((user) => user.id === data._id);
-    let friends = users.filter((user) =>
-      data.friends.find((item) => item._id === user.id)
-    );
-    friends = friends.map((friend) => friend.id);
-
-    socket.emit("checkUserOnlineToMe", friends);
-
-    if (friends.length > 0) {
-      friends.forEach((client) => {
-        socket.to(`${client.socketId}`).emit("checkUserOnlineToClient", user);
-      });
     }
   });
 };
