@@ -5,7 +5,7 @@ const UserSchema = mongoose.Schema({
     username: {type: String, required: true},
     password: {type: String, required: true},
     phoneNumber:{type:String,require:true},
-    avatarURL:{type: String, required: true},
+    avatarURL:{type: String, required: false},
     friends: {type: [{ type: mongoose.Types.ObjectId, ref: "User" }],require:false,ref: "User"},
     nickname:{type: String, required: false},
     gender:{type:Boolean,require:true,default:true},

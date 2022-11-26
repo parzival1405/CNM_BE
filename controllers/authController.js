@@ -39,8 +39,8 @@ module.exports.signin = async (req, res) => {
 };
 
 module.exports.signup = async (req, res) => {
-  const { password, username, phoneNumber, dob, gender } = req.body;
-  const avatarURL = ""
+  const { password, username, phoneNumber, dob, gender,avatarURL } = req.body;
+
   try {
     const existingUser = await User.findOne({ phoneNumber });
 
